@@ -25,6 +25,17 @@ public class JwtFilter extends UsernamePasswordAuthenticationFilter implements J
         super.setAuthenticationManager(authenticationManager);
     }
 
+    /**
+     * This filter is responsible for validating and authenticating incoming requests using JWT tokens.
+     * It extracts the JWT token from the request's Authorization header, validates it, and sets the
+     * authenticated user's details in the Spring Security context.
+     *
+     * @param request The incoming HTTP request.
+     * @param response The HTTP response to be sent.
+     * @param filterChain The filter chain to be executed after this filter.
+     * @throws ServletException If a servlet-specific error occurs.
+     * @throws IOException If an I/O error occurs.
+     */
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorizationHeader = request.getHeader("Authorization");
