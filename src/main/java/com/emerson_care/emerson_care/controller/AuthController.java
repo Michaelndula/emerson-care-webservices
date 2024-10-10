@@ -34,7 +34,7 @@ public class AuthController {
             return new ResponseEntity<>("Username already taken. Please use a unique email.", HttpStatus.BAD_REQUEST);
         }
 
-        // Check if user already exists
+        // Check if eamil already exists
         if (userRepository.findByUsername(user.getEmail()).isPresent()) {
             return new ResponseEntity<>("Email already exists. Please use a unique email.", HttpStatus.BAD_REQUEST);
         }
