@@ -13,6 +13,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    volumes:
+      - db-data:/var/lib/mysql
 
   app:
     build:
@@ -25,3 +27,16 @@ services:
       - '8080:8080'
     environment:
       - 'SPRING_PROFILES_ACTIVE=prod'
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080" ]
+      timeout: 5s
+    volumes:
+      - emersoncare-data:/emersoncare/data
+
+volumes:
+  emersoncare-data: ~
+  db-data: ~
