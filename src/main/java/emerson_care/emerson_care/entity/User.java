@@ -25,5 +25,7 @@ public class User {
     private String middleName;
     private String lastName;
     private String email;
-    private String role;
+    private String phoneNumber;
+    private String provider;
+    private String providerId;
 }
