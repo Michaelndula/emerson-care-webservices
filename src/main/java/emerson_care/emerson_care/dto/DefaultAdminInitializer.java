@@ -41,6 +41,7 @@ public class DefaultAdminInitializer {
             admin.setEmail(adminEmail);
             admin.setPhoneNumber("");
             admin.setRole("admin");
+            admin.setIsAdmin("true");
             admin.setFirstName(adminFirstName);
             admin.setLastName(adminLastName);
 
