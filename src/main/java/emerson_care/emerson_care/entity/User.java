@@ -28,5 +28,7 @@ public class User {
     private String phoneNumber;
     private String provider;
     private String providerId;
-    private String role;
+
+    @Column(nullable = false)
+    private String role = "user";
 }
