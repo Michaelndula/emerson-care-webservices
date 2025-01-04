@@ -1,6 +1,9 @@
 package emerson_care.emerson_care.controller;
 
 import emerson_care.emerson_care.dto.LoginRequest;
+import emerson_care.emerson_care.entity.Address;
+import emerson_care.emerson_care.entity.PersonalInformation;
+import emerson_care.emerson_care.entity.Profile;
 import emerson_care.emerson_care.entity.User;
 import emerson_care.emerson_care.repository.UserRepository;
 import emerson_care.emerson_care.util.JwtUtil;
@@ -10,7 +13,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -35,27 +46,22 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody User user) {
-        // Check if user already exists
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             return new ResponseEntity<>("Username already taken. Please use a unique Username.", HttpStatus.BAD_REQUEST);
         }
 
-        // Check if email already exists
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             return new ResponseEntity<>("Email already exists. Please use a unique email.", HttpStatus.BAD_REQUEST);
         }
 
-        // Check if phone already exists
         if (userRepository.findByPhoneNumber(user.getPhoneNumber()).isPresent()) {
             return new ResponseEntity<>("Phone already exists. Please use a unique Phone Number.", HttpStatus.BAD_REQUEST);
         }
 
-        // Check if ID already exists
         if (userRepository.findByIdNumber(user.getIdNumber()).isPresent()) {
             return new ResponseEntity<>("ID Number already exists. Please use a unique ID Number.", HttpStatus.BAD_REQUEST);
         }
 
-        // Determine the role based on the flags
         if ("true".equalsIgnoreCase(user.getIsAdmin())) {
             user.setRole("admin");
         } else if ("true".equalsIgnoreCase(user.getIsProvider())) {
@@ -66,8 +72,44 @@ public class AuthController {
             user.setRole("user");
         }
 
-        // Hash the password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        Address address = new Address();
+        address.setUser(user);
+        user.getAddresses().add(address);
+
+        PersonalInformation personalInfo = new PersonalInformation();
+        personalInfo.setUser(user);
+        user.getPersonalInformation().add(personalInfo);
+
+        try {
+            // Load the default profile photo as an InputStream
+            InputStream defaultPhotoStream = getClass().getResourceAsStream("/profiles/profile.jpg");
+            if (defaultPhotoStream == null) {
+                return new ResponseEntity<>("Default profile photo not found", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+
+            String userPhotoPath = "profiles/" + user.getUsername() + "_profile.jpg";
+
+            // Ensure the profiles directory exists
+            File profilesDir = new File("profiles/");
+            if (!profilesDir.exists()) {
+                profilesDir.mkdirs();
+            }
+
+            // Copy the photo from the InputStream to the user's photo directory
+            Files.copy(defaultPhotoStream, Paths.get(userPhotoPath), StandardCopyOption.REPLACE_EXISTING);
+
+            // Create a profile for the user
+            Profile profile = new Profile();
+            profile.setUser(user);
+            profile.setPhotoPath(userPhotoPath);
+            user.setProfile(profile);
+
+        } catch (IOException e) {
+            return new ResponseEntity<>("Failed to set default profile photo", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
         userRepository.save(user);
 
         return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
@@ -130,11 +172,9 @@ public class AuthController {
         }
 
         if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-            // Update and hash the password if provided
             existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
         }
 
-        // Update additional fields if provided
         if (updatedUser.getFirstName() != null) {
             existingUser.setFirstName(updatedUser.getFirstName());
         }
@@ -154,7 +194,24 @@ public class AuthController {
             existingUser.setRole("patient");
         }
 
-        // Save the updated user
+        if (updatedUser.getAddresses() != null && !updatedUser.getAddresses().isEmpty()) {
+            List<Address> updatedAddresses = updatedUser.getAddresses();
+            existingUser.getAddresses().clear();
+            for (Address updatedAddress : updatedAddresses) {
+                updatedAddress.setUser(existingUser);
+                existingUser.getAddresses().add(updatedAddress);
+            }
+        }
+
+        if (updatedUser.getPersonalInformation() != null && !updatedUser.getPersonalInformation().isEmpty()) {
+            List<PersonalInformation> updatedPersonalInfo = updatedUser.getPersonalInformation();
+            existingUser.getPersonalInformation().clear();
+            for (PersonalInformation info : updatedPersonalInfo) {
+                info.setUser(existingUser);
+                existingUser.getPersonalInformation().add(info);
+            }
+        }
+
         userRepository.save(existingUser);
 
         return new ResponseEntity<>("User updated successfully", HttpStatus.OK);
@@ -168,9 +225,66 @@ public class AuthController {
             return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
         }
 
-        // Delete the user
         userRepository.deleteById(id);
 
         return new ResponseEntity<>("User deleted successfully", HttpStatus.OK);
+    }
+
+    @PostMapping("/profile/{id}/upload")
+    public ResponseEntity<String> uploadProfilePhoto(@PathVariable Long id, @RequestParam("photo") MultipartFile photo) {
+        Optional<User> userOptional = userRepository.findById(id);
+
+        if (userOptional.isEmpty()) {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        }
+
+        User user = userOptional.get();
+
+        // Validate file size (2 MB = 2 * 1024 * 1024 bytes)
+        if (photo.getSize() > 2 * 1024 * 1024) {
+            return new ResponseEntity<>("File size exceeds the maximum limit of 2MB", HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            File profilesDir = new File("profiles/");
+            if (!profilesDir.exists()) {
+                profilesDir.mkdirs();
+            }
+
+            // Save the new photo
+            String newPhotoPath = "profiles/" + user.getUsername() + "_profile_" + System.currentTimeMillis() + ".jpg";
+            File newFile = new File(newPhotoPath);
+            photo.transferTo(newFile);
+
+            // Update the profile photo path
+            Profile profile = getProfile(user, newPhotoPath);
+            user.setProfile(profile);
+
+            // Save the updated user and profile
+            userRepository.save(user);
+
+            return new ResponseEntity<>("Profile photo updated successfully", HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Failed to upload photo", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private static Profile getProfile(User user, String newPhotoPath) {
+        Profile profile = user.getProfile();
+        if (profile == null) {
+            profile = new Profile();
+            profile.setUser(user);
+        }
+
+        // Delete the old photo if it exists and is not the default photo
+        if (profile.getPhotoPath() != null && !profile.getPhotoPath().equals("src/main/resources/profiles/profile.jpg")) {
+            File oldPhoto = new File(profile.getPhotoPath());
+            if (oldPhoto.exists()) {
+                oldPhoto.delete();
+            }
+        }
+
+        profile.setPhotoPath(newPhotoPath);
+        return profile;
     }
 }
