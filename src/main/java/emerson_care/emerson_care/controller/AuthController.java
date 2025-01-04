@@ -53,6 +53,8 @@ public class AuthController {
             return new ResponseEntity<>("Phone already exists. Please use a unique Phone Number.", HttpStatus.BAD_REQUEST);
         }
 
+        user.setRole("user");
+
         // Hash the password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
