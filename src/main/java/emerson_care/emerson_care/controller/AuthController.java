@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -116,19 +117,19 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Map<String, String>> loginUser(@RequestBody LoginRequest loginRequest) {
         Optional<User> userOptional = userRepository.findByUsername(loginRequest.getUsername());
 
         if (userOptional.isEmpty()) {
-            return new ResponseEntity<>("Invalid username or password", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(Map.of("error", "Invalid username or password"), HttpStatus.UNAUTHORIZED);
         }
 
         User user = userOptional.get();
         if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             String token = jwtUtil.generateToken(String.valueOf(user));
-            return new ResponseEntity<>(token, HttpStatus.OK);
+            return ResponseEntity.ok(Map.of("token", token));
         } else {
-            return new ResponseEntity<>("Invalid username or password", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(Map.of("error", "Invalid username or password"), HttpStatus.UNAUTHORIZED);
         }
     }
 

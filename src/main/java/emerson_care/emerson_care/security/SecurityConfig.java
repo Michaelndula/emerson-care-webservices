@@ -24,12 +24,18 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/", "/login", "/signup", "/css/**", "/js/**", "/api/auth/**").permitAll()
+                        .requestMatchers("/index").authenticated()
+                        .anyRequest().authenticated()
                 )
+                .formLogin(httpForm -> {
+                    httpForm.loginPage("/login").permitAll();
+                    httpForm.defaultSuccessUrl("/index", true);
+                    httpForm.failureUrl("/login?error=true");
+                })
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
-                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                            response.sendRedirect("/login");
                         })
                 )
                 .sessionManagement(session -> session
