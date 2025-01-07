@@ -126,6 +126,15 @@ databaseChangeLog:
                     foreignKeyName: "fk_personal_information_user"
                     references: "users(id)"
               - column:
+                  name: "birth_date"
+                  type: "DATE"
+              - column:
+                  name: "sex"
+                  type: "VARCHAR(10)"
+              - column:
+                  name: "marital_status"
+                  type: "VARCHAR(255)"
+              - column:
                   name: "qualification"
                   type: "VARCHAR(255)"
               - column:

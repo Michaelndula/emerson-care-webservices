@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "personal_information")
 @Data
@@ -20,6 +22,9 @@ public class PersonalInformation {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    private LocalDate birthDate;
+    private String sex;
+    private String maritalStatus;
     private String qualification;
     private String certification;
     private String workExperience;
