@@ -75,13 +75,18 @@ public class AuthController {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        Address address = new Address();
-        address.setUser(user);
-        user.getAddresses().add(address);
+        // Set the user reference in the addresses
+        if (user.getAddresses() != null) {
+            for (Address address : user.getAddresses()) {
+                address.setUser(user);
+            }
+        }
 
-        PersonalInformation personalInfo = new PersonalInformation();
-        personalInfo.setUser(user);
-        user.getPersonalInformation().add(personalInfo);
+        if (user.getPersonalInformation() != null) {
+            for (PersonalInformation personalInfo : user.getPersonalInformation()) {
+                personalInfo.setUser(user);
+            }
+        }
 
         try {
             // Load the default profile photo as an InputStream
