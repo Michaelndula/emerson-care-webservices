@@ -11,7 +11,7 @@
         });
 
         if (response.ok) {
-            window.location.href = '/dashboard';
+            window.location.href = '/index';
         } else {
             alert('Invalid username or password');
         }

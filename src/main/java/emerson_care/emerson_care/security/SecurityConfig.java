@@ -42,11 +42,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(httpForm ->{
                     httpForm.loginPage("/login").permitAll();
-                    httpForm.defaultSuccessUrl("/dashboard");
+                    httpForm.defaultSuccessUrl("/index");
 
                 })
                 .authorizeHttpRequests(registry ->{
-                    registry.requestMatchers("/css/**","/js/**", "/api/**").permitAll();
+                    registry.requestMatchers("/css/**","/js/**", "/api/**", "/favicon.ico").permitAll();
                     registry.anyRequest().authenticated();
                 })
                 .build();
