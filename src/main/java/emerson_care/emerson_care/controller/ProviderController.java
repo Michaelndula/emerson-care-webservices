@@ -14,29 +14,30 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
-public class UserController {
+@RequestMapping("/api/providers")
+public class ProviderController {
 
     private final UserRepository userRepository;
 
-    public UserController(UserRepository userRepository) {
+    public ProviderController(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<UserInfoDTO> getUserInfoById(@PathVariable Long id) {
+    public ResponseEntity<UserInfoDTO> getProviderInfoById(@PathVariable Long id) {
         return userRepository.findById(id)
+                .filter(user -> "provider".equalsIgnoreCase(user.getRole()))
                 .map(user -> {
-                    UserInfoDTO patientInfoDTO = DTOMapper.mapToUserInfoDTO(user);
-                    return ResponseEntity.ok(patientInfoDTO);
+                    UserInfoDTO userInfoDTO = DTOMapper.mapToUserInfoDTO(user);
+                    return ResponseEntity.ok(userInfoDTO);
                 })
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<UserInfoDTO>> getAllUsers() {
-        List<User> users = userRepository.findAllPatients();
-        List<UserInfoDTO> patientInfoDTOs = DTOMapper.mapToUserInfoDTOList(users);
-        return ResponseEntity.ok(patientInfoDTOs);
+    public ResponseEntity<List<UserInfoDTO>> getAllPatients() {
+        List<User> provider = userRepository.findAllByRole("provider");
+        List<UserInfoDTO> userInfoDTOs = DTOMapper.mapToUserInfoDTOList(provider);
+        return ResponseEntity.ok(userInfoDTOs);
     }
 }
