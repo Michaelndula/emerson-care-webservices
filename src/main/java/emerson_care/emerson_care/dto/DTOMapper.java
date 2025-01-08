@@ -7,8 +7,9 @@ import java.util.stream.Collectors;
 
 public class DTOMapper {
 
-    public static PatientInfoDTO mapToPatientInfoDTO(User user) {
-        PatientInfoDTO dto = new PatientInfoDTO();
+    public static UserInfoDTO mapToUserInfoDTO(User user) {
+        UserInfoDTO dto = new UserInfoDTO();
+        dto.setUuid(user.getUuid());
         dto.setUsername(user.getUsername());
         dto.setFirstName(user.getFirstName());
         dto.setMiddleName(user.getMiddleName());
@@ -47,9 +48,9 @@ public class DTOMapper {
         return dto;
     }
 
-    public static List<PatientInfoDTO> mapToPatientInfoDTOList(List<User> users) {
+    public static List<UserInfoDTO> mapToUserInfoDTOList(List<User> users) {
         return users.stream()
-                .map(DTOMapper::mapToPatientInfoDTO)
+                .map(DTOMapper::mapToUserInfoDTO)
                 .collect(Collectors.toList());
     }
 }

@@ -5,7 +5,8 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class PatientInfoDTO {
+public class UserInfoDTO {
+    private String uuid;
     private String username;
     private String firstName;
     private String middleName;

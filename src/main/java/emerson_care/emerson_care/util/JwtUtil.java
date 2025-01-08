@@ -3,6 +3,7 @@ package emerson_care.emerson_care.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;

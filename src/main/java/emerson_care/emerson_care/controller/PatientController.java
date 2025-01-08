@@ -1,7 +1,7 @@
 package emerson_care.emerson_care.controller;
 
 import emerson_care.emerson_care.dto.DTOMapper;
-import emerson_care.emerson_care.dto.PatientInfoDTO;
+import emerson_care.emerson_care.dto.UserInfoDTO;
 import emerson_care.emerson_care.entity.User;
 import emerson_care.emerson_care.repository.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -24,20 +24,20 @@ public class PatientController {
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<PatientInfoDTO> getPatientInfoById(@PathVariable Long id) {
+    public ResponseEntity<UserInfoDTO> getPatientInfoById(@PathVariable Long id) {
         return userRepository.findById(id)
                 .filter(user -> "patient".equalsIgnoreCase(user.getRole()))
                 .map(user -> {
-                    PatientInfoDTO patientInfoDTO = DTOMapper.mapToPatientInfoDTO(user);
-                    return ResponseEntity.ok(patientInfoDTO);
+                    UserInfoDTO userInfoDTO = DTOMapper.mapToUserInfoDTO(user);
+                    return ResponseEntity.ok(userInfoDTO);
                 })
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<PatientInfoDTO>> getAllPatientsWithRolePatient() {
+    public ResponseEntity<List<UserInfoDTO>> getAllPatients() {
         List<User> patients = userRepository.findAllByRole("patient");
-        List<PatientInfoDTO> patientInfoDTOs = DTOMapper.mapToPatientInfoDTOList(patients);
-        return ResponseEntity.ok(patientInfoDTOs);
+        List<UserInfoDTO> userInfoDTOs = DTOMapper.mapToUserInfoDTOList(patients);
+        return ResponseEntity.ok(userInfoDTOs);
     }
 }

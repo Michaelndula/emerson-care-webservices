@@ -18,7 +18,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findById(Long id);
 
     @Query("SELECT u FROM User u WHERE u.role <> 'admin'")
-    List<User> findAllPatientsExcludingAdmin();
+    List<User> findAllPatients();
 
     @Query("SELECT u FROM User u WHERE u.role = :role")
     List<User> findAllByRole(@Param("role") String role);

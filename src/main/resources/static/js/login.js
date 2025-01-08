@@ -1,29 +1,22 @@
-document.getElementById("loginForm").addEventListener("submit", function (event) {
+ document.getElementById('loginForm').addEventListener('submit', async (event) => {
     event.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
 
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-
-    fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-    })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error("Invalid username or password");
-            }
-            return response.text();
-        })
-        .then((token) => {
-            console.log("JWT Token:", token);
-            localStorage.setItem("jwtToken", token);
-            window.location.href = "/index";
-        })
-        .catch((error) => {
-            console.error("Login failed:", error);
-            alert("Invalid username or password");
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
         });
+
+        if (response.ok) {
+            window.location.href = '/dashboard';
+        } else {
+            alert('Invalid username or password');
+        }
+    } catch (error) {
+        console.error('Login failed:', error);
+        alert('An error occurred. Please try again.');
+    }
 });
