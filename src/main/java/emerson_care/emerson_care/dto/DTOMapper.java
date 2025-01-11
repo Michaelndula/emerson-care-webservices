@@ -45,6 +45,9 @@ public class DTOMapper {
             }).collect(Collectors.toList()));
         }
 
+        dto.setDateCreated(user.getDateCreated());
+        dto.setDateUpdated(user.getDateUpdated());
+
         return dto;
     }
 

@@ -61,6 +61,18 @@ databaseChangeLog:
               - column:
                   name: "isAdmin"
                   type: "VARCHAR(36)"
+              - column:
+                  name: "date_created"
+                  type: "TIMESTAMP"
+                  constraints:
+                    nullable: false
+                    defaultValueComputed: "CURRENT_TIMESTAMP"
+              - column:
+                  name: "date_updated"
+                  type: "TIMESTAMP"
+                  constraints:
+                    nullable: false
+                    defaultValueComputed: "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
 
   - changeSet:
       id: 2

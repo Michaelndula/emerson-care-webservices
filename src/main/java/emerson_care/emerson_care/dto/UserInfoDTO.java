@@ -2,6 +2,7 @@ package emerson_care.emerson_care.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -17,6 +18,8 @@ public class UserInfoDTO {
     private String role;
     private List<AddressDTO> addresses;
     private List<PersonalInformationDTO> personalInformation;
+    private LocalDateTime dateCreated;
+    private LocalDateTime dateUpdated;
 }
 
 @Data
