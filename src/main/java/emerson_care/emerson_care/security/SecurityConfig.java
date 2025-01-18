@@ -51,11 +51,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/signup", "/css/**", "/js/**", "/favicon.ico").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/patients/**").permitAll()
+                        .requestMatchers("/api/providers/**").permitAll()
+                        .requestMatchers("/api/users/**").permitAll()
                         .requestMatchers("/index").authenticated()
                         .requestMatchers("/api/jobs/**").authenticated()
                         .anyRequest().authenticated()
                 )
-                // Configure form login for pages
                 .formLogin(form -> form
                         .loginPage("/login").permitAll()
                         .defaultSuccessUrl("/index", true)
