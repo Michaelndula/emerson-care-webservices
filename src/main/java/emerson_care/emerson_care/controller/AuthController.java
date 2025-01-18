@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -121,26 +122,26 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
+    public ResponseEntity<Map<String, String>> loginUser(@RequestBody LoginRequest loginRequest) {
         Optional<User> userOptional = userRepository.findByUsername(loginRequest.getUsername());
 
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-                // Programmatically authenticate user
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(user.getUsername(), null, List.of());
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-
-                // Create a session
-                HttpSession session = request.getSession(true);
-                session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
-
-                return ResponseEntity.ok("Login successful");
-            }
+        if (userOptional.isEmpty()) {
+            return new ResponseEntity<>(Map.of("error", "Invalid username or password"), HttpStatus.UNAUTHORIZED);
         }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+        User user = userOptional.get();
+        if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            // Generate JWT token
+            String token = jwtUtil.generateToken(user.getUsername());
+
+            // Return token in response
+            return ResponseEntity.ok(Map.of(
+                    "message", "Login successful",
+                    "token", token
+            ));
+        } else {
+            return new ResponseEntity<>(Map.of("error", "Invalid username or password"), HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @PostMapping("/update/{id}")
