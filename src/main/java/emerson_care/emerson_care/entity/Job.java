@@ -27,6 +27,9 @@ public class Job {
 
     private String title;
     private String description;
+    private String location;
+    private String type;
+    private String rate;
 
     @Lob
     private String posterImage;

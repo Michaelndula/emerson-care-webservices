@@ -214,6 +214,15 @@ databaseChangeLog:
                   name: "description"
                   type: "TEXT"
               - column:
+                  name: "location"
+                  type: "TEXT"
+              - column:
+                  name: "type"
+                  type: "TEXT"
+              - column:
+                  name: "rate"
+                  type: "TEXT"
+              - column:
                   name: "poster_image"
                   type: "TEXT"
               - column:

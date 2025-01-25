@@ -11,6 +11,9 @@ public class JobDTO {
     private String uuid;
     private String title;
     private String description;
+    private String location;
+    private String rate;
+    private String type;
     private String posterImage;
     private LocalDate postedDate;
     private LocalDate deadline;
