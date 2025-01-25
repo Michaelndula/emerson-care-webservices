@@ -45,6 +45,9 @@ public class JobsController {
             @RequestParam("title") String title,
             @RequestParam("description") String description,
             @RequestParam("deadline") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate deadline,
+            @RequestParam("location") String location,
+            @RequestParam("rate") String rate,
+            @RequestParam("type") String type,
             @RequestParam("posterImage") MultipartFile posterImage) {
 
         try {
@@ -67,6 +70,9 @@ public class JobsController {
             job.setTitle(title);
             job.setDescription(description);
             job.setDeadline(deadline);
+            job.setLocation(location);
+            job.setRate(rate);
+            job.setType(type);
             job.setPosterImage(imagePath);
             job.setPostedDate(LocalDate.now());
             job.setUuid(UUID.randomUUID().toString());
@@ -87,6 +93,9 @@ public class JobsController {
                     dto.setUuid(job.getUuid());
                     dto.setTitle(job.getTitle());
                     dto.setDescription(job.getDescription());
+                    dto.setLocation(job.getLocation());
+                    dto.setRate(job.getRate());
+                    dto.setType(job.getType());
                     dto.setPosterImage(job.getPosterImage());
                     dto.setPostedDate(job.getPostedDate());
                     dto.setDeadline(job.getDeadline());
@@ -107,6 +116,9 @@ public class JobsController {
                     jobDTO.setUuid(job.getUuid());
                     jobDTO.setTitle(job.getTitle());
                     jobDTO.setDescription(job.getDescription());
+                    jobDTO.setLocation(job.getLocation());
+                    jobDTO.setRate(job.getRate());
+                    jobDTO.setType(job.getType());
                     jobDTO.setPosterImage(job.getPosterImage());
                     jobDTO.setPostedDate(job.getPostedDate());
                     jobDTO.setDeadline(job.getDeadline());
@@ -265,7 +277,7 @@ public class JobsController {
                     String newPosterPath = uploadDir + newPosterFileName;
                     posterImage.transferTo(new File(newPosterPath));
 
-                    job.setPosterImage(newPosterPath); // Update poster path
+                    job.setPosterImage(newPosterPath);
                 }
 
                 // Save updated job
@@ -277,6 +289,9 @@ public class JobsController {
                 jobDTO.setUuid(updatedJob.getUuid());
                 jobDTO.setTitle(updatedJob.getTitle());
                 jobDTO.setDescription(updatedJob.getDescription());
+                jobDTO.setLocation(job.getLocation());
+                jobDTO.setRate(job.getRate());
+                jobDTO.setType(job.getType());
                 jobDTO.setPosterImage(updatedJob.getPosterImage());
                 jobDTO.setPostedDate(updatedJob.getPostedDate());
                 jobDTO.setDeadline(updatedJob.getDeadline());
