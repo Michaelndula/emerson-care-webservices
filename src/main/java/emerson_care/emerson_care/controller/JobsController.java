@@ -144,7 +144,7 @@ public class JobsController {
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @PostMapping("/{jobId}/apply")
+    @PostMapping("/apply/{jobId}")
     public ResponseEntity<String> applyForJob(
             @PathVariable Long jobId,
             @RequestParam("cv") MultipartFile cv,
