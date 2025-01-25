@@ -4,12 +4,10 @@ import emerson_care.emerson_care.dto.DTOMapper;
 import emerson_care.emerson_care.dto.UserInfoDTO;
 import emerson_care.emerson_care.entity.User;
 import emerson_care.emerson_care.repository.UserRepository;
+import emerson_care.emerson_care.util.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,9 +16,11 @@ import java.util.List;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     @GetMapping("/id/{id}")
@@ -38,5 +38,28 @@ public class UserController {
         List<User> users = userRepository.findAllPatients();
         List<UserInfoDTO> patientInfoDTOs = DTOMapper.mapToUserInfoDTOList(users);
         return ResponseEntity.ok(patientInfoDTOs);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserInfoDTO> getLoggedInUserDetails(@RequestHeader("Authorization") String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+        String token = authorizationHeader.substring(7);
+
+        try {
+            String username = jwtUtil.extractUsername(token);
+
+            return userRepository.findByUsername(username)
+                    .map(user -> {
+                        UserInfoDTO userInfoDTO = DTOMapper.mapToUserInfoDTO(user);
+                        return ResponseEntity.ok(userInfoDTO);
+                    })
+                    .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
     }
 }
