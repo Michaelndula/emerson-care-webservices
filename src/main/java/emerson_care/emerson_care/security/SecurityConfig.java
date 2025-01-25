@@ -51,9 +51,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/signup", "/css/**", "/js/**", "/favicon.ico").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/patients/**").permitAll()
-                        .requestMatchers("/api/providers/**").permitAll()
-                        .requestMatchers("/api/users/**").permitAll()
+                        .requestMatchers("/api/patients/**").authenticated()
+                        .requestMatchers("/api/providers/**").authenticated()
+                        .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/index").authenticated()
                         .requestMatchers("/api/jobs/**").authenticated()
                         .anyRequest().authenticated()
