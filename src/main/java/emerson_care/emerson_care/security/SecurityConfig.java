@@ -49,14 +49,14 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 // Configure authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/signup", "/css/**", "/js/**", "/favicon.ico").permitAll()
+                        .requestMatchers( "/dist/**","/css/**", "/js/**", "/favicon.ico").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/patients/**").authenticated()
                         .requestMatchers("/api/providers/**").authenticated()
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/index").authenticated()
                         .requestMatchers("/api/jobs/**").authenticated()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
                         .loginPage("/login").permitAll()
