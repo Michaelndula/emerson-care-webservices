@@ -1,24 +1,23 @@
 // assets
-import { IconKey } from '@tabler/icons-react';
+import { IconUsers } from '@tabler/icons-react';
 
 // constant
 const icons = {
-  IconKey
+  IconUsers
 };
 
 // ==============================|| EXTRA PAGES MENU ITEMS ||============================== //
 
 const pages = {
-  id: 'pages',
-  title: 'Pages',
-  caption: 'Pages Caption',
+  id: 'providers',
+  title: 'Providers',
   type: 'group',
   children: [
     {
       id: 'authentication',
-      title: 'Authentication',
+      title: 'Providers',
       type: 'collapse',
-      icon: icons.IconKey,
+      icon: icons.IconUsers,
 
       children: [
         {
