@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -22,13 +23,34 @@ import GetAppTwoToneIcon from '@mui/icons-material/GetAppOutlined';
 import FileCopyTwoToneIcon from '@mui/icons-material/FileCopyOutlined';
 import PictureAsPdfTwoToneIcon from '@mui/icons-material/PictureAsPdfOutlined';
 import ArchiveTwoToneIcon from '@mui/icons-material/ArchiveOutlined';
+import GroupIcon from '@mui/icons-material/Group';
 
 // ===========================|| DASHBOARD DEFAULT - EARNING CARD ||=========================== //
 
-const EarningCard = ({ isLoading }) => {
+const UsersCard = ({ isLoading }) => {
   const theme = useTheme();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const [totalUsers, setTotalUsers] = useState(0);
+
+   useEffect(() => {
+      const token = localStorage.getItem('token');
+      axios
+        .get('/api/users/all' , { headers: { Authorization: `Bearer ${token}` } })
+        .then((response) => {
+          // Assuming the API returns an array of users:
+          if (Array.isArray(response.data)) {
+            setTotalUsers(response.data.length);
+          } else {
+            // If the response contains the count in a property, adjust accordingly:
+            setTotalUsers(response.data.count || 0);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching users:', error);
+        });
+    }, []);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -37,6 +59,7 @@ const EarningCard = ({ isLoading }) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
 
   return (
     <>
@@ -79,82 +102,25 @@ const EarningCard = ({ isLoading }) => {
               <Grid item>
                 <Grid container justifyContent="space-between">
                   <Grid item>
-                    <Avatar
-                      variant="rounded"
-                      sx={{
-                        ...theme.typography.commonAvatar,
-                        ...theme.typography.largeAvatar,
-                        bgcolor: 'secondary.800',
-                        mt: 1
-                      }}
-                    >
-                      <img src={EarningIcon} alt="Notification" />
-                    </Avatar>
-                  </Grid>
-                  <Grid item>
-                    <Avatar
-                      variant="rounded"
-                      sx={{
-                        ...theme.typography.commonAvatar,
-                        ...theme.typography.mediumAvatar,
-                        bgcolor: 'secondary.dark',
-                        color: 'secondary.200',
-                        zIndex: 1
-                      }}
-                      aria-controls="menu-earning-card"
-                      aria-haspopup="true"
-                      onClick={handleClick}
-                    >
-                      <MoreHorizIcon fontSize="inherit" />
-                    </Avatar>
-                    <Menu
-                      id="menu-earning-card"
-                      anchorEl={anchorEl}
-                      keepMounted
-                      open={Boolean(anchorEl)}
-                      onClose={handleClose}
-                      variant="selectedMenu"
-                      anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'right'
-                      }}
-                      transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right'
-                      }}
-                    >
-                      <MenuItem onClick={handleClose}>
-                        <GetAppTwoToneIcon sx={{ mr: 1.75 }} /> Import Card
-                      </MenuItem>
-                      <MenuItem onClick={handleClose}>
-                        <FileCopyTwoToneIcon sx={{ mr: 1.75 }} /> Copy Data
-                      </MenuItem>
-                      <MenuItem onClick={handleClose}>
-                        <PictureAsPdfTwoToneIcon sx={{ mr: 1.75 }} /> Export
-                      </MenuItem>
-                      <MenuItem onClick={handleClose}>
-                        <ArchiveTwoToneIcon sx={{ mr: 1.75 }} /> Archive File
-                      </MenuItem>
-                    </Menu>
+                     <Avatar
+                        variant="rounded"
+                        sx={{
+                          ...theme.typography.commonAvatar,
+                          ...theme.typography.largeAvatar,
+                          bgcolor: 'primary.800',
+                          color: '#fff',
+                          mt: 1
+                        }}
+                      >
+                        <GroupIcon fontSize="inherit" />
+                      </Avatar>
                   </Grid>
                 </Grid>
               </Grid>
               <Grid item>
                 <Grid container alignItems="center">
                   <Grid item>
-                    <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>$500.00</Typography>
-                  </Grid>
-                  <Grid item>
-                    <Avatar
-                      sx={{
-                        cursor: 'pointer',
-                        ...theme.typography.smallAvatar,
-                        bgcolor: 'secondary.200',
-                        color: 'secondary.dark'
-                      }}
-                    >
-                      <ArrowUpwardIcon fontSize="inherit" sx={{ transform: 'rotate3d(1, 1, 1, 45deg)' }} />
-                    </Avatar>
+                    <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>{totalUsers}</Typography>
                   </Grid>
                 </Grid>
               </Grid>
@@ -166,7 +132,7 @@ const EarningCard = ({ isLoading }) => {
                     color: 'secondary.200'
                   }}
                 >
-                  Total Earning
+                  Total Users
                 </Typography>
               </Grid>
             </Grid>
@@ -177,8 +143,8 @@ const EarningCard = ({ isLoading }) => {
   );
 };
 
-EarningCard.propTypes = {
+ UsersCard.propTypes = {
   isLoading: PropTypes.bool
 };
 
-export default EarningCard;
+export default UsersCard;
