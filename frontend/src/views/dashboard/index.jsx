@@ -30,18 +30,18 @@ const Dashboard = () => {
     <Grid container spacing={gridSpacing}>
       <Grid item xs={12}>
         <Grid container spacing={gridSpacing}>
-          <Grid item xs={3}>
-                <UsersCard isLoading={isLoading} />
-              </Grid>
-              <Grid item xs={3}>
-                <TotalPatientsCard isLoading={isLoading} />
-              </Grid>
-              <Grid item xs={3}>
-                <TotalProvidersCard isLoading={isLoading} />
-              </Grid>
-              <Grid item xs={3}>
-                <JobsCard isLoading={isLoading} />
-              </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <UsersCard isLoading={isLoading} />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <TotalPatientsCard isLoading={isLoading} />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <TotalProvidersCard isLoading={isLoading} />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <JobsCard isLoading={isLoading} />
+          </Grid>
         </Grid>
       </Grid>
       <Grid item xs={12}>
