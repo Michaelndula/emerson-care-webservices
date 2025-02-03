@@ -12,6 +12,7 @@ const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')
 const UtilsColor = Loadable(lazy(() => import('views/utilities/Color')));
 const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
+const JobsAll = Loadable(lazy(() => import('views/jobs/JobsAll')));
 
 const MainRoutes = [
   // Public route for login
@@ -37,6 +38,10 @@ const MainRoutes = [
         path: 'dashboard',
         element: <DashboardDefault />
       },
+     {
+      path: 'jobs/all-jobs',
+      element: <JobsAll />
+    },
       {
         path: 'utils/util-typography',
         element: <UtilsTypography />
