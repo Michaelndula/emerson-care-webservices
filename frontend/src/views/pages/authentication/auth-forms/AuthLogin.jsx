@@ -40,10 +40,8 @@ const AuthLogin = ({ ...others }) => {
   const [checked, setChecked] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
 
-  // useNavigate hook for redirection after login
   const navigate = useNavigate();
 
-  // Google login handler (not implemented)
   const googleHandler = async () => {
     console.error('Google login is not implemented yet.');
   };
