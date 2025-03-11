@@ -18,53 +18,25 @@ import DashboardCard from "ui-component/cards/DashboardCard";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import useJobs from "../../hooks/useJobs";
 
 const truncateText = (text, length = 10) => {
   return text.length > length ? `${text.substring(0, length)}...` : text;
 };
 
 const JobsAll = () => {
-  const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { jobs, loading, updateJob, deleteJob } = useJobs();
   const [openModal, setOpenModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [deleteConfirmModal, setDeleteConfirmModal] = useState(false);
   const [jobToDelete, setJobToDelete] = useState(null);
-
+  const [statusModal, setStatusModal] = useState({ open: false, message: "", isSuccess: false });
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     deadline: "",
-    posterImage: null
+    posterImage: null,
   });
-
-  const [statusModal, setStatusModal] = useState({ open: false, message: "", isSuccess: false });
-
-  useEffect(() => {
-    fetchJobs();
-  }, []);
-
-  const fetchJobs = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("No token found");
-        setLoading(false);
-        return;
-      }
-
-      const response = await axios.get("/api/jobs/all", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      const sortedJobs = response.data.sort((a, b) => b.id - a.id);
-      setJobs(sortedJobs);
-    } catch (error) {
-      console.error("Error fetching jobs:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleOpenModal = (job) => {
     setSelectedJob(job);
@@ -72,7 +44,7 @@ const JobsAll = () => {
       title: job.title,
       description: job.description,
       deadline: job.deadline,
-      posterImage: null
+      posterImage: null,
     });
     setOpenModal(true);
   };
@@ -93,14 +65,6 @@ const JobsAll = () => {
   const handleUpdateJob = async () => {
     if (!selectedJob) return;
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      console.error("No token found");
-      return;
-    }
-
-    const updateUrl = `/api/jobs/update/${selectedJob.id}`;
-
     const data = new FormData();
     data.append("title", formData.title);
     data.append("description", formData.description);
@@ -110,22 +74,8 @@ const JobsAll = () => {
     }
 
     try {
-      await axios.put(updateUrl, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data"
-        }
-      });
-
+      await updateJob(selectedJob.id, data);
       setStatusModal({ open: true, message: "Job updated successfully!", isSuccess: true });
-
-      // Update job list dynamically
-      setJobs((prevJobs) =>
-        prevJobs.map((job) =>
-          job.id === selectedJob.id ? { ...job, ...formData } : job
-        )
-      );
-
       handleCloseModal();
     } catch (error) {
       console.error("Error updating job:", error);
@@ -136,24 +86,9 @@ const JobsAll = () => {
   const handleDeleteJob = async () => {
     if (!jobToDelete) return;
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      console.error("No token found");
-      return;
-    }
-
-    const deleteUrl = `/api/jobs/delete/${jobToDelete.id}`;
-
     try {
-      await axios.delete(deleteUrl, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
+      await deleteJob(jobToDelete.id);
       setStatusModal({ open: true, message: "Job deleted successfully!", isSuccess: true });
-
-      // Remove job from the list dynamically
-      setJobs((prevJobs) => prevJobs.filter((job) => job.id !== jobToDelete.id));
-
       setDeleteConfirmModal(false);
       setJobToDelete(null);
     } catch (error) {
@@ -175,9 +110,8 @@ const JobsAll = () => {
   useEffect(() => {
     if (statusModal.open) {
       const timer = setTimeout(() => {
-        setStatusModal({ ...statusModal, open: false });
+        setStatusModal((prev) => ({ ...prev, open: false }));
       }, 3000);
-
       return () => clearTimeout(timer);
     }
   }, [statusModal]);
@@ -193,23 +127,47 @@ const JobsAll = () => {
           <Table aria-label="jobs table" sx={{ whiteSpace: "nowrap", mt: 2 }}>
             <TableHead>
               <TableRow>
-                <TableCell><Typography fontWeight={600}>Title</Typography></TableCell>
-                <TableCell><Typography fontWeight={600}>Description</Typography></TableCell>
-                <TableCell><Typography fontWeight={600}>Type</Typography></TableCell>
-                <TableCell><Typography fontWeight={600}>Location</Typography></TableCell>
-                <TableCell><Typography fontWeight={600}>Rate</Typography></TableCell>
-                <TableCell><Typography fontWeight={600}>Posted Date</Typography></TableCell>
-                <TableCell><Typography fontWeight={600}>Deadline</Typography></TableCell>
-                <TableCell><Typography fontWeight={600}>Applications</Typography></TableCell>
-                <TableCell><Typography fontWeight={600}>Status</Typography></TableCell>
-                <TableCell><Typography fontWeight={600}>Action</Typography></TableCell>
+                <TableCell>
+                  <Typography fontWeight={600}>Title</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography fontWeight={600}>Description</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography fontWeight={600}>Type</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography fontWeight={600}>Location</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography fontWeight={600}>Rate</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography fontWeight={600}>Posted Date</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography fontWeight={600}>Deadline</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography fontWeight={600}>Applications</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography fontWeight={600}>Status</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography fontWeight={600}>Action</Typography>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {jobs.map((job) => (
                 <TableRow key={job.id}>
-                  <TableCell><Typography fontWeight={500}>{job.title}</Typography></TableCell>
-                  <TableCell><Typography variant="body2">{truncateText(job.description)}</Typography></TableCell>
+                  <TableCell>
+                    <Typography fontWeight={500}>{job.title}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2">{truncateText(job.description)}</Typography>
+                  </TableCell>
                   <TableCell>{job.type}</TableCell>
                   <TableCell>{job.location}</TableCell>
                   <TableCell>{job.rate}</TableCell>
@@ -234,29 +192,88 @@ const JobsAll = () => {
         )}
       </Box>
 
-
       {/* Update Job Modal */}
       <Modal open={openModal} onClose={handleCloseModal}>
-        <Box sx={{
-          position: "absolute", top: "50%", left: "50%",
-          transform: "translate(-50%, -50%)", width: 400, bgcolor: "background.paper",
-          boxShadow: 24, p: 4, borderRadius: "8px"
-        }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: "8px",
+          }}
+        >
           <Box display="flex" justifyContent="space-between" alignItems="center">
             <Typography variant="h6">Update Job</Typography>
-            <IconButton onClick={handleCloseModal}><CloseIcon /></IconButton>
+            <IconButton onClick={handleCloseModal}>
+              <CloseIcon />
+            </IconButton>
           </Box>
-          <TextField label="Title" fullWidth margin="normal" name="title" value={formData.title} onChange={handleChange} />
-          <TextField label="Description" fullWidth margin="normal" name="description" value={formData.description} onChange={handleChange} multiline rows={3} />
-          <TextField label="Deadline" fullWidth margin="normal" name="deadline" type="date" value={formData.deadline} onChange={handleChange} />
-          <input type="file" name="posterImage" accept="image/*" onChange={handleChange} style={{ marginTop: "10px" }} />
-          <Button variant="contained" color="primary" fullWidth onClick={handleUpdateJob} sx={{ mt: 2 }}>Save Changes</Button>
+          <TextField
+            label="Title"
+            fullWidth
+            margin="normal"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+          />
+          <TextField
+            label="Description"
+            fullWidth
+            margin="normal"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            multiline
+            rows={3}
+          />
+          <TextField
+            label="Deadline"
+            fullWidth
+            margin="normal"
+            name="deadline"
+            type="date"
+            value={formData.deadline}
+            onChange={handleChange}
+          />
+          <input
+            type="file"
+            name="posterImage"
+            accept="image/*"
+            onChange={handleChange}
+            style={{ marginTop: "10px" }}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={handleUpdateJob}
+            sx={{ mt: 2 }}
+          >
+            Save Changes
+          </Button>
         </Box>
       </Modal>
 
-      {/* Success/Error Modal */}
-      <Modal open={statusModal.open} onClose={() => setStatusModal({ ...statusModal, open: false })}>
-        <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 300, bgcolor: "background.paper", p: 4, textAlign: "center", borderRadius: "8px" }}>
+      {/* Status Modal */}
+      <Modal open={statusModal.open} onClose={() => setStatusModal((prev) => ({ ...prev, open: false }))}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 300,
+            bgcolor: "background.paper",
+            p: 4,
+            textAlign: "center",
+            borderRadius: "8px",
+          }}
+        >
           <Typography variant="h6" color={statusModal.isSuccess ? "green" : "red"}>
             {statusModal.message}
           </Typography>
@@ -265,9 +282,23 @@ const JobsAll = () => {
 
       {/* Delete Confirmation Modal */}
       <Modal open={deleteConfirmModal} onClose={closeDeleteConfirmModal}>
-        <Box sx={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 300, bgcolor: "background.paper", p: 4, textAlign: "center", borderRadius: "8px" }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 300,
+            bgcolor: "background.paper",
+            p: 4,
+            textAlign: "center",
+            borderRadius: "8px",
+          }}
+        >
           <Typography variant="h6">Are you sure you want to delete?</Typography>
-          <Button onClick={handleDeleteJob} color="error" variant="contained" sx={{ mt: 2 }}>Delete</Button>
+          <Button onClick={handleDeleteJob} color="error" variant="contained" sx={{ mt: 2 }}>
+            Delete
+          </Button>
         </Box>
       </Modal>
     </DashboardCard>

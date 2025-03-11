@@ -8,6 +8,7 @@ import emerson_care.emerson_care.entity.User;
 import emerson_care.emerson_care.repository.JobApplicationRepository;
 import emerson_care.emerson_care.repository.JobRepository;
 import emerson_care.emerson_care.repository.UserRepository;
+import emerson_care.emerson_care.service.NotificationService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,11 +34,13 @@ public class JobsController {
     private final JobRepository jobRepository;
     private final JobApplicationRepository jobApplicationRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
-    public JobsController(JobRepository jobRepository, JobApplicationRepository jobApplicationRepository, UserRepository userRepository) {
+    public JobsController(JobRepository jobRepository, JobApplicationRepository jobApplicationRepository, UserRepository userRepository, NotificationService notificationService) {
         this.jobRepository = jobRepository;
         this.jobApplicationRepository = jobApplicationRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     @PostMapping("/post")
@@ -78,6 +81,9 @@ public class JobsController {
             job.setUuid(UUID.randomUUID().toString());
 
             Job savedJob = jobRepository.save(job);
+
+            notificationService.createJobNotification(savedJob);
+
             return ResponseEntity.ok(savedJob);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
