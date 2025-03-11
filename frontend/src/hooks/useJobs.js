@@ -14,7 +14,7 @@ const useJobs = () => {
         console.error("No token found");
         return;
       }
-      const response = await axios.get("http://localhost:8080/api/jobs/all", {
+      const response = await axios.get("/api/jobs/all", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const sortedJobs = response.data.sort((a, b) => b.id - a.id);
@@ -30,7 +30,7 @@ const useJobs = () => {
   const updateJob = async (jobId, formData) => {
     const token = localStorage.getItem("token");
     try {
-      await axios.put(`http://localhost:8080/api/jobs/update/${jobId}`, formData, {
+      await axios.put(`/api/jobs/update/${jobId}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -49,7 +49,7 @@ const useJobs = () => {
   const deleteJob = async (jobId) => {
     const token = localStorage.getItem("token");
     try {
-      await axios.delete(`http://localhost:8080/api/jobs/delete/${jobId}`, {
+      await axios.delete(`/api/jobs/delete/${jobId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setJobs((prevJobs) => prevJobs.filter((job) => job.id !== jobId));
